@@ -4,10 +4,6 @@ set -x
 ############################################
 # DSI CONSULTING INC. Project setup script #
 ############################################
-# This script creates standard analysis and output directories
-# for a new project. It also creates a README file with the
-# project name and a brief description of the project.
-# Then it unzips the raw data provided by the client.
 
 if [ -d newproject ]; then
   echo "Recreating the newproject directory"
@@ -30,31 +26,30 @@ unzip -q rawdata.zip
 # 1. Create a directory named data
 mkdir data
 
-# 2. Move the ./rawdata directory to ./data/raw
-mkdir data/raw
-mv ./rawdata ./data/raw
+# 2. Move the contents of ./rawdata to ./data/raw
+mkdir -p ./data/raw
+mv ./rawdata/* ./data/raw
+rmdir ./rawdata
 
 # 3. List the contents of the ./data/raw directory
 ls ./data/raw
 
-# 4. In ./data/processed, create the following directories: server_logs, user_logs, and event_logs
-mkdir ./data/processed
-mkdir ./data/processed/server_logs ./data/processed/user_logs ./data/processed/event_logs 
+# 4. Create processed subdirs
+mkdir -p ./data/processed
+mkdir -p ./data/processed/server_logs ./data/processed/user_logs ./data/processed/event_logs
 
-# 5. Copy all server log files (files with "server" in the name AND a .log extension) from ./data/raw to ./data/processed/server_logs
-cp ./data/raw/rawdata/*server*.log ./data/processed/server_logs
+# 5. Copy server logs
+cp ./data/raw/*server*.log ./data/processed/server_logs
 
-# 6. Repeat the above step for user logs and event logs
-cp ./data/raw/rawdata/*user_log*.log ./data/processed/user_logs
-cp ./data/raw/rawdata/*event_log*.log ./data/processed/event_logs
+# 6. Copy user and event logs
+cp ./data/raw/*user_log*.log ./data/processed/user_logs
+cp ./data/raw/*event_log*.log ./data/processed/event_logs
 
-# 7. For user privacy, remove all files containing IP addresses (files with "ipaddr" in the filename) from ./data/raw and ./data/processed/user_logs
-rm ./data/raw/rawdata/*ipaddr* ./data/processed/user_logs/*ipaddr*
+# 7. Remove files containing ipaddr
+rm ./data/raw/*ipaddr* ./data/processed/user_logs/*ipaddr* 2>/dev/null
 
-
-# 8. Create a file named ./data/inventory.txt that lists all the files in the subfolders of ./data/processed
+# 8. Inventory of processed
 find ./data/processed -type f > ./data/inventory.txt
-
 
 ###########################################
 
